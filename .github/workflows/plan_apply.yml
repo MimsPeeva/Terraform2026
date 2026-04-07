@@ -1,0 +1,63 @@
+name: 'Terraform Plan and Apply'
+
+on:
+  workflow_run:
+    workflows: [ 'Terraform Test' ]
+    types: [ completed ]
+
+env:
+    ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+    ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+    ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+jobs:
+  terraform_plan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v4
+
+    - name: Login to Azure via Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v4
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
+
+    - name: Save Terraform Plan as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan
+        path: tfplan
+
+  terraform_apply:
+    needs: terraform_plan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v4 
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v4
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Download Terraform Plan artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan
+        path: .
+    
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
