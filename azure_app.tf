@@ -10,6 +10,13 @@ terraform {
       version = "3.8.1"
     }
   }
+
+  backend "azurerm" {
+    resource_group_name = "StorageRG"
+    storage_account_name = "taskboardstoragemims2026"
+    container_name = "taskboardcontainer"
+    key = "terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
@@ -97,7 +104,7 @@ resource "azurerm_mssql_firewall_rule" "firewall_rule" {
 # #Deploy code from a public GitHub repository
 resource "azurerm_app_service_source_control" "aassc" {
   app_id                 = azurerm_linux_web_app.alwa.id
-  repo_url               = var.github_repo_url
+  repo_url               = "https://github.com/MimsPeeva/Terraform2026"
   branch                 = "main"
   use_manual_integration = true
 }
