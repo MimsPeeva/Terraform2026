@@ -104,7 +104,7 @@ resource "azurerm_mssql_firewall_rule" "firewall_rule" {
 # #Deploy code from a public GitHub repository
 resource "azurerm_app_service_source_control" "aassc" {
   app_id                 = azurerm_linux_web_app.alwa.id
-  repo_url               = "https://github.com/MimsPeeva/Terraform2026"
+  repo_url               = "https://github.com/MimsPeeva/03.Azure-Web-App-with-Database-TaskBoard"
   branch                 = "main"
   use_manual_integration = true
 }
